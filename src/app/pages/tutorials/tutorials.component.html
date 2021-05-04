@@ -1,0 +1,329 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header>
+    <nz-page-header-title>Tutorials</nz-page-header-title>
+    <!-- <nz-page-header-subtitle>This is a subtitle</nz-page-header-subtitle> -->
+  </nz-page-header>
+</div>
+
+<div class="site-page-header-ghost-wrapper">
+  <nz-page-header [nzGhost]="false">
+    <nz-page-header-extra>
+      <button nz-button nzType="primary" (click)="showModal()">
+        Create New Tutorial
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+
+  <div class="inner-content">
+    <nz-table
+      #basicTable
+      nzBordered
+      [nzData]="listOfData"
+      [nzFrontPagination]="true"
+      [nzShowPagination]="true"
+      [nzPageSize]="50"
+    >
+      <thead>
+        <tr>
+          <th width="10px">Index</th>
+          <th>Name</th>
+          <th>Text</th>
+          <th>Pointer Type</th>
+          <th>Next</th>
+          <th width="12%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data; let i = index">
+          <td align="center">{{ i + 1 }}</td>
+          <td>{{ data.name }}</td>
+          <td>{{ data.text }}</td>
+          <td>{{ data.pointerType }}</td>
+          <td>{{ data.next }}</td>
+          <td>
+            <button
+              nz-button
+              [nzType]="'primary'"
+              (click)="editTutorials(data)"
+            >
+              <i nz-icon nzType="edit" nzTheme="outline"></i>
+            </button>
+            <nz-divider nzType="vertical"></nz-divider>
+            <button
+              nz-button
+              [nzType]="'danger'"
+              (click)="deleteTutorials(data?._id)"
+            >
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<nz-modal
+  [nzStyle]="{ top: '20px' }"
+  [(nzVisible)]="isVisible"
+  nzTitle="Tutorial"
+  nzMaskClosable="false"
+  nzWidth="600"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter"
+>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="id"
+        >Tutorial Number</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please input your Tutorial Number!"
+      >
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="id"
+          nzPlaceHolder="Tutorial Number"
+          formControlName="id"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="name"
+        >Name</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Name!"
+      >
+        <input nz-input formControlName="name" id="name" placeholder="Name" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="text">Text</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input
+          nz-input
+          type="text"
+          id="text"
+          formControlName="text"
+          placeholder="Text"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container formGroupName="trigger">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="triggertype" nzRequired
+          >Trigger Type</nz-form-label
+        >
+        <nz-form-control
+          [nzSm]="14"
+          [nzXs]="24"
+          nzErrorTip="Please select your Trigger Type!"
+        >
+          <nz-select
+            id="triggertype"
+            formControlName="type"
+            nzPlaceHolder="Select a option and change input text above"
+          >
+            <nz-option nzValue="none" nzLabel="none"></nz-option>
+            <nz-option nzValue="level" nzLabel="level"></nz-option>
+            <nz-option nzValue="coins" nzLabel="coin"></nz-option>
+            <nz-option nzValue="event" nzLabel="event"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item
+        *ngIf="
+          validateForm?.controls?.trigger?.controls?.type?.value !== 'none'
+        "
+      >
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="level"
+          >Trigger Value</nz-form-label
+        >
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-input-number
+            nz-input
+            [nzMin]="1"
+            [nzStep]="1"
+            style="width: 100%"
+            id="level"
+            nzPlaceHolder="Trigger Value"
+            formControlName="value"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="pointertype" nzRequired
+        >Pointer Type</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your Pointer Type!"
+      >
+        <nz-select
+          id="pointertype"
+          formControlName="pointerType"
+          nzPlaceHolder="Select a option and change input text above"
+        >
+          <nz-option nzValue="hand" nzLabel="hand"></nz-option>
+          <nz-option nzValue="arrow" nzLabel="arrow"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="uitype" nzRequired
+        >UI Type</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your UI Type!"
+      >
+        <nz-select
+          id="uitype"
+          formControlName="type"
+          nzPlaceHolder="Select a option and change input text above"
+        >
+          <nz-option nzValue="ui" nzLabel="ui"></nz-option>
+          <nz-option nzValue="gameplay" nzLabel="gameplay"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item *ngIf="validateForm?.controls?.type?.value == 'ui'">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="positionpath"
+        >Position Path</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input
+          nz-input
+          id="positionpath"
+          placeholder="position Path"
+          formControlName="positionPath"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container
+      formGroupName="position"
+      *ngIf="validateForm?.controls?.type?.value !== 'ui'"
+    >
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="position"
+          >Position</nz-form-label
+        >
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-input-number
+            [nzMin]="1"
+            [nzStep]="1"
+            nzPlaceHolder="X Position"
+            formControlName="x"
+          >
+          </nz-input-number>
+          <nz-input-number
+            style="margin-left: 15px"
+            [nzMin]="1"
+            [nzStep]="1"
+            nzPlaceHolder="Y Position"
+            formControlName="y"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <ng-container formGroupName="offset">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="offset"
+          >Offset</nz-form-label
+        >
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-input-number
+            [nzMin]="1"
+            [nzStep]="1"
+            nzPlaceHolder="Offset X"
+            formControlName="x"
+          >
+          </nz-input-number>
+          <nz-input-number
+            style="margin-left: 15px"
+            [nzMin]="1"
+            [nzStep]="1"
+            nzPlaceHolder="Offset Y"
+            formControlName="y"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <ng-container formGroupName="size">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="size">Size</nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-input-number
+            [nzMin]="1"
+            [nzStep]="1"
+            nzPlaceHolder="Width"
+            formControlName="width"
+          >
+          </nz-input-number>
+          <nz-input-number
+            style="margin-left: 15px"
+            [nzMin]="1"
+            [nzStep]="1"
+            nzPlaceHolder="Height"
+            formControlName="height"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+
+    <nz-form-item *ngIf="validateForm?.controls?.pointerType?.value == 'arrow'">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="orientation"
+        >Orientation</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your UI Type!"
+      >
+        <nz-select
+          id="orientation"
+          formControlName="orientation"
+          nzPlaceHolder="Select a option and change input text above"
+        >
+          <nz-option nzValue="top" nzLabel="Top"></nz-option>
+          <nz-option nzValue="bottom" nzLabel="Bottom"></nz-option>
+          <nz-option nzValue="left" nzLabel="Left"></nz-option>
+          <nz-option nzValue="right" nzLabel="Right"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="next">Next</nz-form-label>
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Next!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="next"
+          id="next"
+          nzPlaceHolder="Next"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="submitForm()">Submit</button>
+  </ng-template>
+</nz-modal>

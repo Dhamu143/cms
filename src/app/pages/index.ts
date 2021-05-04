@@ -1,0 +1,10 @@
+export { BuildingsComponent } from "./buildings/buildings.component";
+export { CharactersComponent } from "./characters/characters.component";
+export { LevelsComponent } from "./levels/levels.component";
+export { NotificationsComponent } from "./notifications/notifications.component";
+export { ProductsComponent } from "./products/products.component";
+export { ProfileComponent } from "./profile/profile.component";
+export { TasksComponent } from "./tasks/tasks.component";
+export { TutorialsComponent } from "./tutorials/tutorials.component";
+export { UsersComponent } from './users/users.component';
+export { GameUsersComponent } from './game-users/game-users.component';

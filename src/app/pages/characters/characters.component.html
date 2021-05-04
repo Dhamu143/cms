@@ -1,0 +1,475 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header>
+    <nz-page-header-title>Characters</nz-page-header-title>
+  </nz-page-header>
+</div>
+
+<div class="site-page-header-ghost-wrapper">
+  <nz-page-header [nzGhost]="false">
+    <nz-page-header-extra>
+      <button nz-button nzType="primary" (click)="showModal()">
+        Create New Character
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+
+  <div class="inner-content">
+    <nz-table
+      #basicTable
+      nzBordered
+      [nzData]="listOfData"
+      [nzFrontPagination]="true"
+      [nzShowPagination]="true"
+      [nzPageSize]="50"
+    >
+      <thead>
+        <tr>
+          <th>Index</th>
+          <th style="text-align: center" width="120px">Charcter Ref Image</th>
+          <th>Category</th>
+          <th>Gender</th>
+          <th>Name</th>
+          <th>Max Coins</th>
+          <th>Unlock Level</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <img
+              style="width: 60px; height: 60px; object-fit: contain"
+              src="{{ data?.imageUrl }}"
+              onError="this.src='/assets/images/no-image-available.jpg'"
+            />
+          </td>
+          <td>{{ data?.category }}</td>
+          <td>{{ data?.gender }}</td>
+          <td>{{ data?.name }}</td>
+          <td>{{ data?.maxCoins }}</td>
+          <td>{{ data?.unlockLevel }}</td>
+          <td>
+            <button
+              nz-button
+              [nzType]="'primary'"
+              (click)="editCharacter(data)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="edit" nzTheme="outline"></i>
+            </button>
+            <nz-divider nzType="vertical"></nz-divider>
+            <button
+              nz-button
+              [nzType]="'danger'"
+              (click)="deleteCharacter(data?._id)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<nz-modal
+  [nzStyle]="{ top: '20px' }"
+  [(nzVisible)]="isVisible"
+  nzTitle="Character"
+  nzMaskClosable="false"
+  nzWidth="600"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter"
+>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="name" nzRequired
+        >Name</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please input your Name!"
+      >
+        <input
+          nz-input
+          type="text"
+          id="name"
+          formControlName="name"
+          placeholder="Name"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="type"
+        >Type</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Type!"
+      >
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="type"
+          placeholder="Type"
+          formControlName="type"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="unlocklevel"
+        >Unlock Level</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Unlock Level!"
+      >
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="unlocklevel"
+          placeholder="Unlock Level"
+          formControlName="unlockLevel"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="maxcoins"
+        >Max Coins</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Max Coins!"
+      >
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="maxcoins"
+          placeholder="Max Coins"
+          formControlName="maxCoins"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="category"
+        >Category</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your Category!"
+      >
+        <nz-select id="category" formControlName="category">
+          <nz-option nzValue="normal" nzLabel="normal"></nz-option>
+          <nz-option nzValue="buyable" nzLabel="buyable"></nz-option>
+          <nz-option nzValue="reward" nzLabel="reward"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="validateForm?.controls?.category?.value == 'buyable'">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="cost">Cost</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="cost"
+          placeholder="Cost in diamonds"
+          formControlName="cost"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="gender"
+        >Gender</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your Gender!"
+      >
+        <nz-select id="gender" formControlName="gender">
+          <nz-option nzValue="" nzLabel=""></nz-option>
+          <nz-option nzValue="Male" nzLabel="male"></nz-option>
+          <nz-option nzValue="Female" nzLabel="female"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="animationfile"
+        >Animation File</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input
+          nz-input
+          type="text"
+          id="animationfile"
+          formControlName="animationFile"
+          placeholder="Prefix animation File Name"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="imagefile"
+        >Image File for Ref</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input type="file" id="imagefile" />
+      </nz-form-control>
+    </nz-form-item>
+    <ng-container formArrayName="generic">
+      <nz-form-item
+        *ngFor="let quantity of generic().controls; let i = index"
+        [formGroupName]="i"
+      >
+        <nz-form-label [nzSm]="6" [nzXs]="24" *ngIf="i == 0"
+          >Generic Dialogue
+        </nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" [nzOffset]="i == 0 ? 0 : 6">
+          <input
+            class="passenger-input"
+            nz-input
+            placeholder="Generic dialogue for character"
+            formControlName="name"
+          />
+          <i
+            nz-icon
+            nzType="minus-circle-o"
+            class="dynamic-delete-button"
+            (click)="removeDialogue(i, 'generic')"
+          ></i>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control
+          [nzXs]="{ span: 24, offset: 0 }"
+          [nzSm]="{ span: 24, offset: 6 }"
+        >
+          <button
+            type="button"
+            nz-button
+            nzType="dashed"
+            class="add-button"
+            (click)="addDialogue('generic')"
+          >
+            <i nz-icon nzType="plus"></i>
+            Add Generic Dialogue
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+
+    <ng-container formArrayName="inShop">
+      <nz-form-item
+        *ngFor="let quantity of inShop().controls; let i = index"
+        [formGroupName]="i"
+      >
+        <nz-form-label [nzSm]="6" [nzXs]="24" *ngIf="i == 0"
+          >In Shop Dialogues
+        </nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" [nzOffset]="i == 0 ? 0 : 6">
+          <input
+            class="passenger-input"
+            nz-input
+            placeholder="In Shop dialogue for character"
+            formControlName="name"
+          />
+          <i
+            nz-icon
+            nzType="minus-circle-o"
+            class="dynamic-delete-button"
+            (click)="removeDialogue(i, 'inShop')"
+          ></i>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control
+          [nzXs]="{ span: 24, offset: 0 }"
+          [nzSm]="{ span: 24, offset: 6 }"
+        >
+          <button
+            type="button"
+            nz-button
+            nzType="dashed"
+            class="add-button"
+            (click)="addDialogue('inShop')"
+          >
+            <i nz-icon nzType="plus"></i>
+            Add InShop Dialogues
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+
+    <ng-container formArrayName="afterShop">
+      <nz-form-item
+        *ngFor="let quantity of afterShop().controls; let i = index"
+        [formGroupName]="i"
+      >
+        <nz-form-label [nzSm]="6" [nzXs]="24" *ngIf="i == 0"
+          >After Shop Dialogues
+        </nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" [nzOffset]="i == 0 ? 0 : 6">
+          <input
+            class="passenger-input"
+            nz-input
+            placeholder="After Shop dialogue for character"
+            formControlName="name"
+          />
+          <i
+            nz-icon
+            nzType="minus-circle-o"
+            class="dynamic-delete-button"
+            (click)="removeDialogue(i, 'afterShop')"
+          ></i>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control
+          [nzXs]="{ span: 24, offset: 0 }"
+          [nzSm]="{ span: 24, offset: 6 }"
+        >
+          <button
+            type="button"
+            nz-button
+            nzType="dashed"
+            class="add-button"
+            (click)="addDialogue('afterShop')"
+          >
+            <i nz-icon nzType="plus"></i>
+            Add After Shop Dialogues
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+
+    <ng-container formArrayName="frontDesk">
+      <nz-form-item
+        *ngFor="let quantity of frontDesk().controls; let i = index"
+        [formGroupName]="i"
+      >
+        <nz-form-label [nzSm]="6" [nzXs]="24" *ngIf="i == 0"
+          >Front Desk Dialogues
+        </nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" [nzOffset]="i == 0 ? 0 : 6">
+          <input
+            class="passenger-input"
+            nz-input
+            placeholder="Front Desk dialogue for character"
+            formControlName="name"
+          />
+          <i
+            nz-icon
+            nzType="minus-circle-o"
+            class="dynamic-delete-button"
+            (click)="removeDialogue(i, 'frontDesk')"
+          ></i>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control
+          [nzXs]="{ span: 24, offset: 0 }"
+          [nzSm]="{ span: 24, offset: 6 }"
+        >
+          <button
+            type="button"
+            nz-button
+            nzType="dashed"
+            class="add-button"
+            (click)="addDialogue('frontDesk')"
+          >
+            <i nz-icon nzType="plus"></i>
+            Add Front Desk Dialogues
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+
+    <ng-container formArrayName="nearDecor">
+      <nz-form-item
+        *ngFor="let quantity of nearDecor().controls; let i = index"
+        [formGroupName]="i"
+      >
+        <nz-form-label [nzSm]="6" [nzXs]="24" *ngIf="i == 0"
+          >Near Decor Dialogues
+        </nz-form-label>
+        <nz-form-control [nzSm]="14" [nzXs]="24" [nzOffset]="i == 0 ? 0 : 6">
+          <input
+            class="passenger-input"
+            nz-input
+            placeholder="Near Decor dialogue for character"
+            formControlName="name"
+          />
+          <i
+            nz-icon
+            nzType="minus-circle-o"
+            class="dynamic-delete-button"
+            (click)="removeDialogue(i, 'nearDecor')"
+          ></i>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control
+          [nzXs]="{ span: 24, offset: 0 }"
+          [nzSm]="{ span: 24, offset: 6 }"
+        >
+          <button
+            type="button"
+            nz-button
+            nzType="dashed"
+            class="add-button"
+            (click)="addDialogue('nearDecor')"
+          >
+            <i nz-icon nzType="plus"></i>
+            Add Near Decor Dialogues
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="excludedutilities"
+        >Excluded Utilities
+      </nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select
+          nzMode="multiple"
+          nzPlaceHolder="Select utilities to exclude"
+          formControlName="excludedUtilities"
+        >
+          <nz-option
+            *ngFor="let option of utilitiesData"
+            [nzLabel]="option?.name"
+            [nzValue]="option?.subType"
+          >
+          </nz-option>
+          <!-- [nzHide]="!isNotSelected(option.subType)" -->
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="submitForm()">Submit</button>
+  </ng-template>
+</nz-modal>

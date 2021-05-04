@@ -1,0 +1,429 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header nzTitle="Buildings"> </nz-page-header>
+</div>
+
+<div class="site-page-header-ghost-wrapper">
+  <nz-page-header [nzGhost]="false">
+    <nz-page-header-extra>
+      <nz-select ngModel="shop" (ngModelChange)="changeBuilding($event)">
+        <nz-option nzValue="shop" nzLabel="Shop"></nz-option>
+        <nz-option nzValue="decorative" nzLabel="Decorative"></nz-option>
+        <nz-option nzValue="utility" nzLabel="Utility"></nz-option>
+        <nz-option nzValue="all" nzLabel="All"></nz-option>
+      </nz-select>
+      <button nz-button nzType="primary" (click)="showModal()">
+        Create New Building
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+
+  <div class="inner-content">
+    <nz-table
+      #basicTable
+      nzBordered
+      [nzData]="listOfData"
+      [nzFrontPagination]="true"
+      [nzShowPagination]="true"
+      [nzPageSize]="50"
+    >
+      <thead (nzSortChange)="sort($event)">
+        <tr>
+          <th width="10px">Index</th>
+          <th style="text-align: center" width="120px">Image</th>
+          <th>Name</th>
+          <th width="100px" nzSortKey="unlockLevel">
+            <button nz-button nzType="dashed">Unlock Level</button>
+          </th>
+          <th>Type</th>
+          <th>Sub Type</th>
+          <th width="12%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data; let i = index">
+          <td align="center">{{ i + 1 }}</td>
+          <td align="center">
+            <img
+              src="{{ data.imageUrl }}"
+              onError="this.src='/assets/images/no-image-available.jpg'"
+              style="width: 60px; height: 60px; object-fit: contain"
+            />
+          </td>
+          <td>{{ data.name }}</td>
+          <td align="center">
+            <i nz-icon style="margin-right: 10px">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M18 10v-4c0-3.313-2.687-6-6-6s-6 2.687-6 6v4h-3v14h18v-14h-3zm-10 0v-4c0-2.206 1.794-4 4-4s4 1.794 4 4v4h-8z"
+                />
+              </svg>
+            </i>
+
+            {{ data.unlockLevel }}
+          </td>
+          <td>{{ data.type }}</td>
+          <td>{{ data.subType }}</td>
+          <td>
+            <button
+              nz-button
+              [nzType]="'primary'"
+              (click)="editBuildings(data)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="edit" nzTheme="outline"></i>
+            </button>
+            <nz-divider nzType="vertical"></nz-divider>
+            <button
+              nz-button
+              [nzType]="'danger'"
+              (click)="deleteBuildings(data?._id)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<nz-modal
+  [nzStyle]="{ top: '20px' }"
+  [(nzVisible)]="isVisible"
+  nzTitle="Building"
+  nzMaskClosable="false"
+  nzWidth="850"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter"
+>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="buildingname"
+        >Name</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Building Name!"
+      >
+        <input
+          nz-input
+          formControlName="name"
+          id="buildingname"
+          placeholder="Building Name"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="unlocklevel" nzRequired
+        >Unlock Level</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please input your Unlock Level!"
+      >
+        <input
+          nz-input
+          id="unlocklevel"
+          formControlName="unlockLevel"
+          placeholder="Unlock Level"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="type" nzRequired
+        >Type</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your Type!"
+      >
+        <nz-select
+          id="type"
+          formControlName="type"
+          nzPlaceHolder="Select a option and change input text above"
+        >
+          <nz-option nzValue="shop" nzLabel="shop"></nz-option>
+          <nz-option nzValue="decorative" nzLabel="decorative"></nz-option>
+          <nz-option nzValue="utility" nzLabel="utility"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="subtype" nzRequired>
+        Subtype
+      </nz-form-label>
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please input your Subtype!"
+      >
+        <input
+          nz-input
+          id="subtype"
+          formControlName="subType"
+          placeholder="SubType"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="imagefile"
+        >Image File for Ref</nz-form-label
+      >
+      <input type="file" id="imagefile" />
+    </nz-form-item>
+
+    <ng-container formGroupName="imageInfo">
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="filename"
+          >File Name</nz-form-label
+        >
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <input
+            nz-input
+            id="filename"
+            formControlName="name"
+            placeholder="File Name"
+          />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="customtype"
+          >Custom CSB Type</nz-form-label
+        >
+        <nz-form-control [nzSm]="14" [nzXs]="24">
+          <nz-select formControlName="type">
+            <nz-option nzValue="normal" nzLabel="normal"></nz-option>
+            <nz-option nzValue="custom" nzLabel="custom"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item
+        *ngIf="
+          validateForm?.controls?.imageInfo?.controls?.type?.value == 'custom'
+        "
+      >
+        <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="Customfile"
+          >Custom CSB file</nz-form-label
+        >
+        <nz-form-control
+          [nzSm]="14"
+          [nzXs]="24"
+          nzErrorTip="Please input Custom CSB file!"
+        >
+          <input
+            nz-input
+            id="Customfile"
+            formControlName="file"
+            placeholder="Custom CSB file"
+          />
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="enabled"
+        >Enabled</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <label nz-checkbox formControlName="enabled"> </label>
+      </nz-form-control>
+    </nz-form-item>
+
+    <ng-container formArrayName="dialogues">
+      <nz-form-item
+        *ngFor="let quantity of dialogues().controls; let i = index"
+        [formGroupName]="i"
+      >
+        <nz-form-label [nzSm]="6" [nzXs]="24" *ngIf="i == 0"
+          >Dialogue
+        </nz-form-label>
+        <nz-form-control
+          [nzSm]="14"
+          [nzXs]="24"
+          [nzOffset]="i == 0 ? 0 : 6"
+          nzErrorTip="Please input Dialogue's name or delete this field."
+        >
+          <input
+            class="passenger-input"
+            nz-input
+            placeholder="Dialogue"
+            formControlName="name"
+          />
+          <i
+            nz-icon
+            nzType="minus-circle-o"
+            class="dynamic-delete-button"
+            (click)="removeDialogue(i)"
+          ></i>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-control
+          [nzXs]="{ span: 24, offset: 0 }"
+          [nzSm]="{ span: 24, offset: 6 }"
+        >
+          <button
+            type="button"
+            nz-button
+            nzType="dashed"
+            class="add-button"
+            (click)="addDialogue()"
+          >
+            <i nz-icon nzType="plus"></i>
+            Add Dialogue
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </ng-container>
+
+    <nz-form-item *ngIf="isEdit">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="Customfile"
+        >Upgrade Info</nz-form-label
+      >
+      <button type="button" nz-button (click)="addRow()" nzType="primary">
+        Add <i nz-icon nzType="plus"></i>
+      </button>
+      <!-- nzTableLayout="fixed" -->
+      <nz-table
+        #editRowTable
+        style="margin-top: 20px"
+        nzBordered
+        [nzData]="upgradeInfo"
+        [nzShowPagination]="false"
+        nzTableLayout="fixed"
+      >
+        <thead>
+          <tr>
+            <th nzWidth="70px">Level</th>
+            <th nzWidth="80px">Max Coins</th>
+            <th nzWidth="80px">Initial Coins</th>
+            <th nzWidth="80px">Usage Fee</th>
+            <th nzWidth="80px">Cost</th>
+            <th nzWidth="80px">Speed Up Cost</th>
+            <th nzWidth="80px">Appeal</th>
+            <th nzWidth="80px">Time</th>
+            <th nzWidth="80px">Coin Rate</th>
+            <th nzWidth="80px">Edit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let data of editRowTable.data; let i = index">
+            <ng-container *ngIf="!editUpgradeInfo[i].edit; else editTemplate">
+              <td>{{ data.level }}</td>
+              <td>{{ data.maxCoins }}</td>
+              <td>{{ data.initialCoins }}</td>
+              <td>{{ data.usageFee }}</td>
+              <td>{{ data.cost }}</td>
+              <td>{{ data.speedUpCost }}</td>
+              <td>{{ data.appeal }}</td>
+              <td>{{ data.time }}</td>
+              <td>{{ data.coinRate }}</td>
+              <td><a (click)="startUpgradeInfo(i)">Edit</a></td>
+            </ng-container>
+            <ng-template #editTemplate>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.level"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.maxCoins"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.initialCoins"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.usageFee"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.cost"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.speedUpCost"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.appeal"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.time"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  nz-input
+                  [(ngModel)]="editUpgradeInfo[i].data.coinRate"
+                  [ngModelOptions]="{ standalone: true }"
+                />
+              </td>
+              <td>
+                <a (click)="saveUpgradeInfo(i)" class="save">Save</a>
+                <!-- <a
+                  nz-popconfirm
+                  nzPopconfirmTitle="Sure to cancel?"
+                  (nzOnConfirm)="cancelEdit(i)"
+                  >Cancel</a
+                > -->
+              </td>
+            </ng-template>
+          </tr>
+        </tbody>
+      </nz-table>
+    </nz-form-item>
+  </form>
+  <ng-template #modalFooter>
+    <button type="reset" nz-button nzType="default" (click)="handleCancel()">
+      Cancel
+    </button>
+    <button type="submit" nz-button nzType="primary" (click)="submitForm()">
+      Submit
+    </button>
+  </ng-template>
+</nz-modal>

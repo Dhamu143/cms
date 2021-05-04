@@ -1,0 +1,55 @@
+<div class="content">
+  <div class="top">
+    <div class="header">
+      <h2>Icecream Story CMS</h2>
+      <!-- <img src="https://ng.ant.design/assets/img/logo.svg" style="height:100px;padding-bottom: 30px;" alt="logo"> -->
+    </div>
+  </div>
+  <div class="main">
+    <form
+      nz-form
+      [formGroup]="validateForm"
+      class="login-form"
+      (ngSubmit)="submitForm()"
+    >
+      <nz-form-item>
+        <nz-form-control nzErrorTip="Please input your Email!">
+          <nz-input-group nzPrefixIcon="user">
+            <input
+              type="text"
+              nz-input
+              nzSize="large"
+              formControlName="email"
+              placeholder="Email"
+            />
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-control nzErrorTip="Please input your Password!">
+          <nz-input-group nzPrefixIcon="lock">
+            <input
+              type="password"
+              nz-input
+              nzSize="large"
+              formControlName="password"
+              placeholder="Password"
+            />
+          </nz-input-group>
+        </nz-form-control>
+      </nz-form-item>
+      <!-- <div nz-row class="login-form-margin forgotpassword">
+        <a class="login-form-forgot" [routerLink]="['/forgot-password']"
+          >Forgot password</a
+        >
+      </div> -->
+      <button
+        nz-button
+        class="login-form-button login-form-margin"
+        [nzType]="'primary'"
+      >
+        Log in
+      </button>
+    </form>
+  </div>
+</div>

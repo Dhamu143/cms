@@ -1,0 +1,109 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header>
+    <nz-page-header-title>User</nz-page-header-title>
+  </nz-page-header>
+</div>
+
+<div class="site-page-header-ghost-wrapper">
+  <nz-page-header [nzGhost]="false">
+    <nz-page-header-extra>
+      <button nz-button nzType="primary" (click)="showModal()">
+        Create New User
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+
+  <div class="inner-content">
+    <nz-table #basicTable nzBordered [nzData]="listOfData">
+      <thead>
+        <tr>
+          <th width="10px">Index</th>
+          <th>Email Address</th>
+          <th>Password</th>
+          <th width="12%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data; let i = index">
+          <td align="center">{{ i + 1 }}</td>
+          <td>{{ data.email }}</td>
+          <td>{{ data?.password }}</td>
+          <td>
+            <button
+              nz-button
+              [disabled]="data?._id !== loginUser"
+              [nzType]="'primary'"
+              (click)="editUsers(data)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="edit" nzTheme="outline"></i>
+            </button>
+            <nz-divider nzType="vertical"></nz-divider>
+            <button
+              nz-button
+              [disabled]="data?._id !== loginUser"
+              [nzType]="'danger'"
+              (click)="deleteUsers(data?._id)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<nz-modal
+  [nzStyle]="{ top: '20px' }"
+  [(nzVisible)]="isVisible"
+  nzTitle="User"
+  nzMaskClosable="false"
+  nzWidth="600"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter"
+>
+  <form nz-form [formGroup]="validateForm">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="email"
+        >Email</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Email!"
+      >
+        <input
+          nz-input
+          type="text"
+          id="email"
+          formControlName="email"
+          placeholder="Email"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="password"
+        >Password</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Password!"
+      >
+        <input
+          nz-input
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Password"
+        />
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="submitForm()">Submit</button>
+  </ng-template>
+</nz-modal>

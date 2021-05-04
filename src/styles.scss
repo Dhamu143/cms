@@ -1,0 +1,52 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "~jsoneditor/dist/jsoneditor.min.css";
+
+.ant-table {
+  padding: 0px 15px 15px 15px !important;
+}
+
+.ant-pro-page-container-warp {
+  background-color: #fff;
+  margin: -24px -24px 0;
+}
+
+.site-page-header-ghost-wrapper {
+  margin-top: 24px;
+}
+
+.jsoneditor-sort {
+  display: none;
+}
+.jsoneditor-transform {
+  display: none;
+}
+.jsoneditor-navigation-bar {
+  display: none;
+}
+
+.ant-descriptions-item-label {
+  font-weight: 500;
+}
+
+.ant-table-column-sorter {
+  display: none !important;
+}
+
+.custom-table {
+  .ant-table {
+    padding: 0 0 15px 0 !important;
+  }
+}
+
+.gameuser-table {
+  .ant-table {
+    padding: 12px !important;
+  }
+}
+
+.custom-tasktable {
+  .ant-table {
+    padding: 0 !important;
+  }
+}

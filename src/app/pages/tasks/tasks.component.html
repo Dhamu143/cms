@@ -1,0 +1,496 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header>
+    <nz-page-header-title>Tasks</nz-page-header-title>
+  </nz-page-header>
+</div>
+
+<div class="site-page-header-ghost-wrapper">
+  <nz-page-header [nzGhost]="false">
+    <nz-page-header-extra>
+      <nz-select ngModel="" (ngModelChange)="changeTask($event)">
+        <nz-option
+          [nzLabel]="levelFilter?.name"
+          *ngFor="let levelFilter of levelFilterTypes"
+          [nzValue]="levelFilter?.value"
+        >
+          {{ levelFilter?.name }}
+        </nz-option>
+      </nz-select>
+      <button nz-button nzType="primary" (click)="showModal()">
+        Create New Task
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+  <div class="inner-content">
+    <nz-table #basicTable nzBordered [nzData]="listOfData" [nzPageSize]="50">
+      <thead>
+        <tr>
+          <th>Order Number</th>
+          <th>Level</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Reward</th>
+          <th>Task Ref</th>
+          <th width="12%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data; let i = index">
+          <td>{{ data.orderId }}</td>
+          <td>{{ data.level }}</td>
+          <td>{{ data.name }}</td>
+          <td>{{ data.type }}</td>
+          <td>{{ data.reward }}</td>
+          <td>
+            <nz-select
+              *ngIf="data?.type === 'shop' || data?.type === 'upgrade'"
+              [ngModel]="data?.typeId"
+              nzDisabled
+              [nzCustomTemplate]="defaultTemplate"
+            >
+              <nz-option
+                [nzLabel]="shop?.name"
+                *ngFor="let shop of shopsData"
+                [nzValue]="shop?.subType"
+              >
+              </nz-option>
+              <ng-template #defaultTemplate let-selected>
+                <img
+                  [src]="selected?.imageUrl"
+                  onError="this.src='/assets/images/no-image-available.jpg'"
+                  width="24px"
+                  height="24px"
+                />
+                {{ selected?.nzLabel }}
+              </ng-template>
+            </nz-select>
+
+            <nz-select
+              *ngIf="data?.type === 'utility'"
+              [ngModel]="data?.typeId"
+              nzDisabled
+              [nzCustomTemplate]="defaultTemplate"
+            >
+              <nz-option
+                [nzLabel]="utilitie?.name"
+                *ngFor="let utilitie of utilitiesData"
+                [nzValue]="utilitie?.subType"
+              >
+              </nz-option>
+              <ng-template #defaultTemplate let-selected>
+                <img
+                  [src]="selected?.imageUrl"
+                  onError="this.src='/assets/images/no-image-available.jpg'"
+                  width="24px"
+                  height="24px"
+                />
+                {{ selected?.nzLabel }}
+              </ng-template>
+            </nz-select>
+
+            <nz-select
+              *ngIf="data?.type === 'character'"
+              [ngModel]="data?.typeId"
+              nzDisabled
+              [nzCustomTemplate]="defaultTemplate"
+            >
+              <nz-option
+                [nzLabel]="character?.name"
+                *ngFor="let character of charactersData"
+                [nzValue]="character?.type"
+              >
+              </nz-option>
+              <ng-template #defaultTemplate let-selected>
+                <img
+                  [src]="selected?.imageUrl"
+                  onError="this.src='/assets/images/no-image-available.jpg'"
+                  width="24px"
+                  height="24px"
+                />
+                {{ selected?.nzLabel }}
+              </ng-template>
+            </nz-select>
+
+            <nz-select
+              *ngIf="data?.type === 'social'"
+              [ngModel]="data?.typeId"
+              nzDisabled
+            >
+              <nz-option
+                [nzLabel]="socialType?.name"
+                *ngFor="let socialType of socialTypes"
+                [nzValue]="socialType?.value"
+              >
+              </nz-option>
+            </nz-select>
+
+            <span *ngIf="data?.type === 'levelup'">
+              Level {{ data?.typeId }}</span
+            >
+          </td>
+          <td>
+            <button
+              nz-button
+              [nzType]="'primary'"
+              (click)="editTasks(data)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="edit" nzTheme="outline"></i>
+            </button>
+            <nz-divider nzType="vertical"></nz-divider>
+            <button
+              nz-button
+              [nzType]="'danger'"
+              (click)="deleteTasks(data?._id)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<nz-modal
+  [nzStyle]="{ top: '20px' }"
+  [(nzVisible)]="isVisible"
+  nzTitle="Task"
+  nzMaskClosable="false"
+  nzWidth="700"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter"
+>
+  <form nz-form [formGroup]="validateForm">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="ordernumber"
+        >Order Number</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Order Number!"
+      >
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="ordernumber"
+          nzPlaceHolder="Order Number"
+          formControlName="orderId"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="name" nzRequired
+        >Name</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please input your Name!"
+      >
+        <input
+          nz-input
+          type="text"
+          id="name"
+          formControlName="name"
+          placeholder="Name"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="level">Level</nz-form-label>
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Level!"
+      >
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="level"
+          nzPlaceHolder="Level"
+          formControlName="level"
+        >
+        </nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="tasktype"
+        >Task Type</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your Task Type!"
+      >
+        <nz-select
+          id="tasktype"
+          formControlName="type"
+          (ngModelChange)="taskTypeChange($event)"
+        >
+          <nz-option nzValue="shop" nzLabel="Shop"></nz-option>
+          <nz-option nzValue="utility" nzLabel="Utility"></nz-option>
+          <nz-option nzValue="coin" nzLabel="Coin"></nz-option>
+          <nz-option nzValue="character" nzLabel="Character"></nz-option>
+          <nz-option nzValue="upgrade" nzLabel="Upgrade"></nz-option>
+          <nz-option nzValue="social" nzLabel="Social"></nz-option>
+          <nz-option nzValue="share" nzLabel="Share"></nz-option>
+          <nz-option nzValue="levelup" nzLabel="Level Up"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="reward"
+        >Reward</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="reward"
+          nzPlaceHolder="Reward"
+          formControlName="reward"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="enabled"
+        >Enabled</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Enabled!"
+      >
+        <label nz-checkbox formControlName="enabled"> </label>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item
+      *ngIf="
+        validateForm?.controls?.type?.value == 'shop' ||
+        validateForm?.controls?.type?.value == 'upgrade'
+      "
+    >
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="Typeid"
+        >TypeId</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="Select a shop..."
+          formControlName="typeId"
+        >
+          <nz-option
+            nzCustomContent
+            [nzLabel]="shop?.name"
+            *ngFor="let shop of shopsData"
+            [nzValue]="shop?.subType"
+          >
+            <img
+              [src]="shop?.imageUrl"
+              onError="this.src='/assets/images/no-image-available.jpg'"
+              width="48px"
+              height="48px"
+            />
+            {{ shop?.name }}
+          </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="validateForm?.controls?.type?.value == 'utility'">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="Typeid"
+        >TypeId</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="Select a utility..."
+          formControlName="typeId"
+        >
+          <nz-option
+            nzCustomContent
+            [nzLabel]="utilitie?.name"
+            *ngFor="let utilitie of utilitiesData"
+            [nzValue]="utilitie?.subType"
+          >
+            <img
+              [src]="utilitie?.imageUrl"
+              onError="this.src='/assets/images/no-image-available.jpg'"
+              width="48px"
+              height="48px"
+            />
+            {{ utilitie?.name }}
+          </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="validateForm?.controls?.type?.value == 'character'">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="Typeid"
+        >TypeId</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select
+          nzShowSearch
+          nzAllowClear
+          nzPlaceHolder="Select a character..."
+          formControlName="typeId"
+        >
+          <nz-option
+            nzCustomContent
+            [nzLabel]="character?.name"
+            *ngFor="let character of charactersData"
+            [nzValue]="character?.type"
+          >
+            <img
+              [src]="character?.imageUrl"
+              onError="this.src='/assets/images/no-image-available.jpg'"
+              width="48px"
+              height="48px"
+            />
+            {{ character?.name }}
+          </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="validateForm?.controls?.type?.value == 'social'">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="Typeid"
+        >TypeId</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-select
+          id="Typeid"
+          formControlName="typeId"
+          nzPlaceHolder="Select a social..."
+        >
+          <nz-option
+            [nzLabel]="socialType?.name"
+            *ngFor="let socialType of socialTypes"
+            [nzValue]="socialType?.value"
+          >
+            {{ socialType?.name }}
+          </nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="validateForm?.controls?.type?.value == 'levelup'">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="level">Level</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-input-number
+          nz-input
+          [nzMin]="1"
+          [nzStep]="1"
+          style="width: 100%"
+          id="level"
+          nzPlaceHolder="Level Number"
+          formControlName="typeId"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="tutorials?.length">
+      <nz-form-label [nzSm]="6" [nzXs]="24">Tutorials</nz-form-label>
+      <div nz-col [nzSm]="14" [nzXs]="24" class="custom-tasktable">
+        <nz-table
+          #tutorialsTable
+          nzBordered
+          [nzData]="tutorials"
+          [nzFrontPagination]="false"
+          [nzShowPagination]="false"
+        >
+          <thead>
+            <tr>
+              <th width="20px">Id</th>
+              <th>Name</th>
+              <th>Text</th>
+              <th>Pointer Type</th>
+              <th>Next</th>
+              <th width="120px">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let data of tutorialsTable.data; let i = index">
+              <td>{{ data.id }}</td>
+              <td>{{ data.name }}</td>
+              <td>{{ data.text }}</td>
+              <td>{{ data.pointerType }}</td>
+              <td>{{ data.next }}</td>
+              <td>
+                <a (click)="editTutorials(data, i)" style="margin-right: 8px"
+                  ><i nz-icon nzType="edit" nzTheme="outline"></i
+                ></a>
+                <a
+                  nz-popconfirm
+                  nzPopconfirmTitle="Sure to delete?"
+                  (nzOnConfirm)="deleteTutorials(i)"
+                  [nzType]="'danger'"
+                  ><i nz-icon nzType="delete" nzTheme="outline"></i
+                ></a>
+
+                <!-- <button
+                  nz-button
+                  [nzType]="'primary'"
+                  (click)="EditTutorials(data)"
+                  style="margin-right: 0"
+                >
+                  <i nz-icon nzType="edit" nzTheme="outline"></i>
+                </button>
+                <nz-divider nzType="vertical"></nz-divider>
+                <button
+                  nz-button
+                  [nzType]="'danger'"
+                  (click)="deleteTasks(i)"
+                  style="margin-right: 0"
+                >
+                  <i nz-icon nzType="delete" nzTheme="outline"></i>
+                </button> -->
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </div>
+    </nz-form-item>
+    <nz-form-item>
+      <div nz-col nzSpan="6"></div>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <button
+          type="button"
+          nz-button
+          nzType="default"
+          (click)="showTutorialModal()"
+        >
+          Add Tutorial
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <ng-template #modalFooter>
+    <button type="button" nz-button nzType="default" (click)="handleCancel()">
+      Cancel
+    </button>
+    <button type="button" nz-button nzType="primary" (click)="submitForm()">
+      Submit
+    </button>
+  </ng-template>
+</nz-modal>
+
+<app-task-tutorials
+  [tutorialVisible]="isTutorialVisible"
+  (tutorialClose)="handleTutorialCancel($event)"
+  [IseditTutorial]="isTutorialEdit"
+  [editTutorialData]="tutorialData"
+  (tutorialEvent)="addTutorial($event)"
+></app-task-tutorials>
