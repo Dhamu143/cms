@@ -1,0 +1,211 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header>
+    <nz-page-header-title>Levels</nz-page-header-title>
+    <!-- <nz-page-header-subtitle>This is a subtitle</nz-page-header-subtitle> -->
+  </nz-page-header>
+</div>
+
+<div class="site-page-header-ghost-wrapper">
+  <nz-page-header [nzGhost]="false">
+    <nz-page-header-extra>
+      <button nz-button nzType="primary" (click)="showModal()">
+        Create New Level
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+
+  <div class="inner-content">
+    <nz-table
+      #basicTable
+      nzBordered
+      [nzData]="listOfData"
+      [nzFrontPagination]="true"
+      [nzShowPagination]="true"
+      [nzPageSize]="50"
+    >
+      <thead>
+        <tr>
+          <!-- <th>Index</th> -->
+          <th>Level Number</th>
+          <th>Max Coins</th>
+          <th>Upgrade Cost</th>
+          <th>Max Shoppers</th>
+          <th>Max Floors</th>
+          <th>Width</th>
+          <th>Height</th>
+          <th width="12%">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let data of basicTable.data; let i = index">
+          <!-- <td>{{ i + 1 }}</td> -->
+          <td>{{ data.level }}</td>
+          <td>{{ data.maxCoins }}</td>
+          <td>{{ data.upgradeCost }}</td>
+          <td>{{ data.maxShoppers }}</td>
+          <td>{{ data.maxFloors }}</td>
+          <td>{{ data?.landSize?.width }}</td>
+          <td>{{ data?.landSize?.height }}</td>
+          <td>
+            <button
+              nz-button
+              [nzType]="'primary'"
+              (click)="editLevels(data)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="edit" nzTheme="outline"></i>
+            </button>
+            <nz-divider nzType="vertical"></nz-divider>
+            <button
+              nz-button
+              [nzType]="'danger'"
+              (click)="deleteLevels(data?._id)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<nz-modal
+  [nzStyle]="{ top: '20px' }"
+  [(nzVisible)]="isVisible"
+  nzTitle="Level"
+  nzMaskClosable="false"
+  nzWidth="600"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter"
+>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="level"
+        >Level</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Level!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="level"
+          id="level"
+          nzPlaceHolder="Level Number"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="maxcoins"
+        >Max Coins</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Max Coins!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="maxCoins"
+          id="maxcoins"
+          nzPlaceHolder="Max Coins"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="upgradecost"
+        >Upgrade Cost</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Upgrade Cost!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="upgradeCost"
+          id="upgradecost"
+          nzPlaceHolder="Upgrade Cost"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="maxshoppers"
+        >Max Shopper</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Max Shopper!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="maxShoppers"
+          id="maxshoppers"
+          nzPlaceHolder="Max Shopper"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="maxfloors"
+        >Max Floors</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Max Floors!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="maxFloors"
+          id="maxfloors"
+          nzPlaceHolder="Max Floors"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item formArrayName="landSize">
+      <!-- <nz-form-label > (Only for display purposes within the game)</nz-form-label> -->
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="landSize"
+        >Land Size</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nzPlaceHolder="width"
+          formControlName="width"
+        >
+        </nz-input-number>
+        <nz-input-number
+          style="margin-left: 15px"
+          [nzMin]="1"
+          [nzStep]="1"
+          nzPlaceHolder="height"
+          formControlName="height"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="submitForm()">Submit</button>
+  </ng-template>
+</nz-modal>

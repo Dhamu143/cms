@@ -1,0 +1,58 @@
+<nz-layout class="app-layout">
+  <nz-sider
+    class="menu-sidebar"
+    nzCollapsible
+    nzWidth="256px"
+    nzBreakpoint="md"
+    [(nzCollapsed)]="isCollapsed"
+    [nzTrigger]="null"
+  >
+    <div class="sidebar-logo">
+      <a [routerLink]="['/dashboard/users']">
+        <!-- <img src="https://ng.ant.design/assets/img/logo.svg" alt="logo"> -->
+        <h1>Icecream Stroy</h1>
+      </a>
+    </div>
+    <ul
+      nz-menu
+      nzTheme="dark"
+      nzMode="inline"
+      [nzInlineCollapsed]="isCollapsed"
+    >
+      <li>
+        <ul>
+          <ng-container *ngFor="let item of menu">
+            <li nz-menu-item nzMatchRouter>
+             
+              <i nz-icon nzType={{item.icon}} nzTheme="outline"></i>
+              <a routerLink="{{ item.routerLink }}">{{ item.title }}</a>
+            </li>
+          </ng-container>
+        </ul>
+      </li>
+    </ul>
+  </nz-sider>
+  <nz-layout>
+    <nz-header>
+      <div class="app-header custom-header">
+        <div>
+          <span class="header-trigger" (click)="isCollapsed = !isCollapsed">
+            <i
+              class="trigger"
+              nz-icon
+              [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"
+            ></i>
+          </span>
+        </div>
+        <div>
+          <span class="header-trigger" [routerLink]="['/login']">
+            <i class="trigger" nz-icon nzType="import" nzTheme="outline"></i>
+          </span>
+        </div>
+      </div>
+    </nz-header>
+    <nz-content>
+      <router-outlet></router-outlet>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

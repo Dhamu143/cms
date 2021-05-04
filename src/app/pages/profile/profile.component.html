@@ -1,0 +1,319 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header>
+    <nz-page-header-title>Default Profile</nz-page-header-title>
+    <!-- <nz-page-header-subtitle>This is a subtitle</nz-page-header-subtitle> -->
+  </nz-page-header>
+</div>
+
+<div id="jsoneditor" style="width: 100%; height: 500px; margin-top: 25px"></div>
+
+<nz-content>
+  <nz-table
+    #basicTable
+    nzBordered
+    [nzFrontPagination]="false"
+    [nzShowPagination]="false"
+    class="gameuser-table"
+    [nzData]="listOfData"
+  >
+    <thead>
+      <tr>
+        <th>Position X</th>
+        <th>Position Y</th>
+        <th>Building</th>
+        <th width="12%">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of basicTable.data; let i = index">
+        <ng-container
+          *ngIf="!editProfileCache[data.buildingId].edit; else editTemplate"
+        >
+          <td>{{ data?.position?.xPosition }}</td>
+          <td>{{ data?.position?.yPosition }}</td>
+          <td>
+            <nz-select
+              nzDisabled
+              [ngModel]="data?.name"
+              [nzCustomTemplate]="defaultTemplate"
+            >
+              <nz-option
+                [nzLabel]="data?.name"
+                [nzValue]="data?.name"
+              ></nz-option>
+            </nz-select>
+            <ng-template #defaultTemplate let-selected>
+              <img
+                [src]="data?.imageUrl"
+                onError="this.src='/assets/images/no-image-available.jpg'"
+                width="24px"
+                height="24px"
+              />
+              {{ data?.name }}
+            </ng-template>
+          </td>
+          <td>
+            <button
+              nz-button
+              [nzType]="'primary'"
+              (click)="startEditProfile(data.buildingId)"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="edit" nzTheme="outline"></i>
+            </button>
+            <nz-divider nzType="vertical"></nz-divider>
+            <button
+              nz-button
+              nz-popconfirm
+              nzPopconfirmTitle="Sure to delete?"
+              (nzOnConfirm)="deleteBuilding(i)"
+              [nzType]="'danger'"
+              style="margin-right: 0"
+            >
+              <i nz-icon nzType="delete" nzTheme="outline"></i>
+            </button>
+          </td>
+        </ng-container>
+        <ng-template #editTemplate>
+          <td>
+            <input
+              type="text"
+              nz-input
+              [(ngModel)]="
+                editProfileCache[data.buildingId].data.position.xPosition
+              "
+            />
+          </td>
+          <td>
+            <input
+              type="text"
+              nz-input
+              [(ngModel)]="
+                editProfileCache[data.buildingId].data.position.yPosition
+              "
+            />
+          </td>
+          <td>
+            <nz-select
+              nzDisabled
+              [ngModel]="data?.name"
+              [nzCustomTemplate]="defaultTemplate"
+            >
+              <nz-option
+                [nzLabel]="data?.name"
+                [nzValue]="data?.name"
+              ></nz-option>
+            </nz-select>
+            <ng-template #defaultTemplate let-selected>
+              <img
+                [src]="data?.imageUrl"
+                onError="this.src='/assets/images/no-image-available.jpg'"
+                width="24px"
+                height="24px"
+              />
+              {{ data?.name }}
+            </ng-template>
+          </td>
+          <td>
+            <a
+              (click)="saveEditProfile(data.buildingId)"
+              class="save"
+              style="margin-right: 8px"
+              >Save</a
+            >
+            <a
+              nz-popconfirm
+              nzPopconfirmTitle="Sure to cancel?"
+              (nzOnConfirm)="cancelEditProfile(data.buildingId)"
+              >Cancel</a
+            >
+          </td>
+        </ng-template>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <div style="padding: 16px 0">
+    <button
+      type="button"
+      nz-button
+      (click)="open()"
+      nzType="primary"
+      class="mb-2"
+    >
+      Add Building
+    </button>
+    <button
+      type="button"
+      nz-button
+      (click)="saveBuilder()"
+      nzType="primary"
+      class="mb-2"
+    >
+      save
+    </button>
+  </div>
+
+  <nz-drawer
+    [nzBodyStyle]="{ overflow: 'auto' }"
+    [nzMaskClosable]="false"
+    [nzWidth]="450"
+    [nzVisible]="visible"
+    nzTitle="Create"
+    (nzOnClose)="close()"
+  >
+    <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired nzFor="tasktype"
+          >Task Type:</nz-form-label
+        >
+        <nz-form-control [nzSm]="12" [nzXs]="24">
+          <nz-select
+            id="tasktype"
+            formControlName="type"
+            (ngModelChange)="taskTypeChange($event)"
+          >
+            <nz-option nzValue="shop" nzLabel="Shop"></nz-option>
+            <nz-option nzValue="decorative" nzLabel="Decorative"></nz-option>
+            <nz-option nzValue="utility" nzLabel="Utility"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired nzFor="building"
+          >Select Building</nz-form-label
+        >
+        <nz-form-control
+          [nzSm]="12"
+          [nzXs]="24"
+          nzErrorTip="The input is not valid Select Building!"
+          *ngIf="validateForm?.controls?.type?.value == 'shop'"
+        >
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="Select a shop..."
+            formControlName="typeId"
+          >
+            <nz-option
+              nzCustomContent
+              [nzLabel]="shop?.name"
+              *ngFor="let shop of shopsData"
+              [nzValue]="shop?.subType"
+            >
+              <img
+                [src]="shop?.imageUrl"
+                onError="this.src='/assets/images/no-image-available.jpg'"
+                width="48px"
+                height="48px"
+              />
+              {{ shop?.name }}
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+
+        <nz-form-control
+          [nzSm]="12"
+          [nzXs]="24"
+          nzErrorTip="The input is not valid Select Building!"
+          *ngIf="validateForm?.controls?.type?.value == 'decorative'"
+        >
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="Select a decorative..."
+            formControlName="typeId"
+          >
+            <nz-option
+              nzCustomContent
+              [nzLabel]="decorative?.name"
+              *ngFor="let decorative of decorativeData"
+              [nzValue]="decorative?.subType"
+            >
+              <img
+                [src]="decorative?.imageUrl"
+                onError="this.src='/assets/images/no-image-available.jpg'"
+                width="48px"
+                height="48px"
+              />
+              {{ decorative?.name }}
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+
+        <nz-form-control
+          [nzSm]="12"
+          [nzXs]="24"
+          nzErrorTip="The input is not valid Select Building!"
+          *ngIf="validateForm?.controls?.type?.value == 'utility'"
+        >
+          <nz-select
+            nzShowSearch
+            nzAllowClear
+            nzPlaceHolder="Select a utility..."
+            formControlName="typeId"
+          >
+            <nz-option
+              nzCustomContent
+              [nzLabel]="utilities?.name"
+              *ngFor="let utilities of utilitiesData"
+              [nzValue]="utilities?.subType"
+            >
+              <img
+                [src]="utilities?.imageUrl"
+                onError="this.src='/assets/images/no-image-available.jpg'"
+                width="48px"
+                height="48px"
+              />
+              {{ utilities?.name }}
+            </nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24" nzFor="positionx"
+          >Position X</nz-form-label
+        >
+        <nz-form-control [nzSm]="12" [nzXs]="24">
+          <nz-input-number
+            [nzMin]="1"
+            [nzStep]="1"
+            nz-input
+            id="positionx"
+            nzPlaceHolder="Position X"
+            formControlName="positionx"
+            style="width: 100%"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label [nzSm]="8" [nzXs]="24" nzFor="positiony"
+          >Position Y</nz-form-label
+        >
+        <nz-form-control [nzSm]="12" [nzXs]="24">
+          <nz-input-number
+            [nzMin]="1"
+            [nzStep]="1"
+            nz-input
+            id="positiony"
+            nzPlaceHolder="Position Y"
+            formControlName="positiony"
+            style="width: 100%"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <div nz-col [nzSm]="8" [nzXs]="24"></div>
+        <button
+          nz-button
+          nzType="primary"
+          style="margin-right: 8px"
+          type="submit"
+        >
+          Submit
+        </button>
+        <button nz-button (click)="close()">Cancel</button>
+      </nz-form-item>
+    </form>
+  </nz-drawer>
+</nz-content>

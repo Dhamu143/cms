@@ -1,0 +1,302 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header>
+    <nz-page-header-title>Game Users</nz-page-header-title>
+  </nz-page-header>
+</div>
+
+<div class="site-page-header-ghost-wrapper">
+  <div nz-row>
+    <div nz-col class="gutter-row" [nzSpan]="6">
+      <div class="inner-box">
+        Device Type:
+        <nz-select
+          ngModel=""
+          (ngModelChange)="onChangeUser($event, 'devicetype')"
+        >
+          <nz-option nzValue="" nzLabel="All"></nz-option>
+          <nz-option nzValue="iOS" nzLabel="iOS"></nz-option>
+          <nz-option nzValue="android" nzLabel="android"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+    <div nz-col class="gutter-row" [nzSpan]="5">
+      <div class="inner-box">
+        User Type :
+        <nz-select
+          ngModel=""
+          (ngModelChange)="onChangeUser($event, 'userfilter')"
+        >
+          <nz-option nzValue="" nzLabel="All"></nz-option>
+          <nz-option nzValue="guest" nzLabel="guest"></nz-option>
+          <nz-option nzValue="facebook" nzLabel="facebook"></nz-option>
+        </nz-select>
+      </div>
+    </div>
+    <div nz-col class="gutter-row" [nzSpan]="13">
+      <div class="inner-box">
+        Search On :
+        <nz-select
+          ngModel=""
+          (ngModelChange)="onChangeUser($event, 'searchOn')"
+        >
+          <nz-option nzValue="" nzLabel="None"></nz-option>
+          <nz-option nzValue="name" nzLabel="name"></nz-option>
+          <nz-option nzValue="coins" nzLabel="coins"></nz-option>
+          <nz-option nzValue="deviceId" nzLabel="deviceId"></nz-option>
+          <nz-option nzValue="fbId" nzLabel="fbId"></nz-option>
+          <nz-option nzValue="level" nzLabel="level"></nz-option>
+        </nz-select>
+        <input
+          nz-input
+          [(ngModel)]="dataparam.search"
+          id="name"
+          placeholder="Name"
+          style="width: 250px; margin-left: 8px"
+        />
+        <button
+          nz-button
+          nzType="primary"
+          (click)="searchUser()"
+          style="margin-left: 8px"
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- <nz-page-header [nzGhost]="false">
+    <nz-page-header-extra>
+      <button nz-button nzType="primary" (click)="showModal()">
+        Create New User
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header> -->
+
+  <div class="inner-content">
+    <nz-table
+      #basicTable
+      nzBordered
+      [nzData]="listOfData"
+      class="gameuser-table"
+    >
+      <thead>
+        <tr>
+          <th>Index</th>
+          <th>Name</th>
+          <th>Device Id</th>
+          <th>Device Type</th>
+          <th>Coins</th>
+          <th>Diamonds</th>
+          <th>FB Id</th>
+          <th>Levels</th>
+          <th>Push Token</th>
+          <th>XP</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let data of basicTable.data; let i = index">
+          <tr>
+            <td
+              [nzExpand]="expandSet.has(data._id)"
+              (nzExpandChange)="onExpandChange(data._id, $event)"
+            >
+              {{ i + 1 }}
+            </td>
+            <td>{{ data?.name }}</td>
+            <td>{{ data?.deviceId }}</td>
+            <td>{{ data?.device }}</td>
+            <td>{{ data?.coins }}</td>
+            <td>{{ data?.diamonds }}</td>
+            <td>{{ data?.fbId }}</td>
+            <td>{{ data?.level }}</td>
+            <td>{{ data?.pushToken }}</td>
+            <td>{{ data?.xp }}</td>
+            <td>
+              <button
+                nz-button
+                [nzType]="'primary'"
+                (click)="editUsers(data)"
+                style="margin-right: 0"
+              >
+                <i nz-icon nzType="edit" nzTheme="outline"></i>
+              </button>
+              <nz-divider nzType="vertical"></nz-divider>
+              <button
+                nz-button
+                [nzType]="'danger'"
+                (click)="deleteUsers(data?._id)"
+                style="margin-right: 0"
+              >
+                <i nz-icon nzType="delete" nzTheme="outline"></i>
+              </button>
+            </td>
+          </tr>
+          <tr [nzExpand]="expandSet.has(data?._id)">
+            <nz-descriptions [nzColumn]="1">
+              <nz-descriptions-item
+                nzTitle="Completed Tutorials"
+                [nzSpan]="1"
+                >{{ data?.completedTutorials?.length }}</nz-descriptions-item
+              >
+              <nz-descriptions-item nzTitle="Shoppers" [nzSpan]="1">{{
+                data?.shoppers?.length
+              }}</nz-descriptions-item>
+              <nz-descriptions-item nzTitle="Tasks" [nzSpan]="1">{{
+                data?.tasks?.length
+              }}</nz-descriptions-item>
+              <nz-descriptions-item nzTitle="Bought Character" [nzSpan]="1">{{
+                data?.boughtCharacter?.length
+              }}</nz-descriptions-item>
+            </nz-descriptions>
+          </tr>
+        </ng-container>
+      </tbody>
+    </nz-table>
+  </div>
+</div>
+
+<nz-modal
+  [nzStyle]="{ top: '20px' }"
+  [(nzVisible)]="isVisible"
+  nzTitle="Level"
+  nzMaskClosable="false"
+  nzWidth="600"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter"
+>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="name">Name</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input nz-input formControlName="name" id="name" placeholder="Name" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="deviceId"
+        >DeviceId</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid DeviceId!"
+      >
+        <input
+          nz-input
+          formControlName="deviceId"
+          id="deviceId"
+          nzPlaceHolder="DeviceId"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="device" nzRequired
+        >Device</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your Device!"
+      >
+        <nz-select id="device" formControlName="device">
+          <nz-option nzValue="iOS" nzLabel="iOS"></nz-option>
+          <nz-option nzValue="android" nzLabel="android"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="coins"
+        >Coin</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Coin!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="coins"
+          id="coins"
+          nzPlaceHolder="Coin"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="diamonds"
+        >Diamond</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Diamond!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="diamonds"
+          id="diamonds"
+          nzPlaceHolder="Diamond"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="fbId">fb Id</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input
+          nz-input
+          formControlName="fbId"
+          id="fbId"
+          nzPlaceHolder="fb Id"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="level"
+        >Level</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid  Level!"
+      >
+        <nz-input-number
+          [nzMin]="1"
+          [nzStep]="1"
+          nz-input
+          formControlName="level"
+          id="level"
+          nzPlaceHolder="Level"
+          style="width: 100%"
+        ></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="xp">XP</nz-form-label>
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input nz-input formControlName="xp" id="xp" nzPlaceHolder="XP" />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="pushToken"
+        >push Token</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <input
+          nz-input
+          formControlName="pushToken"
+          id="pushToken"
+          nzPlaceHolder="push Token"
+        />
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="submitForm()">Submit</button>
+  </ng-template>
+</nz-modal>

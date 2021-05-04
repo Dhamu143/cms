@@ -1,0 +1,221 @@
+<div class="ant-pro-page-container-warp">
+  <nz-page-header>
+    <nz-page-header-title>Notifications</nz-page-header-title>
+  </nz-page-header>
+</div>
+
+<div class="site-page-header-ghost-wrapper">
+  <nz-page-header [nzGhost]="false">
+    <nz-page-header-extra>
+      <button nz-button nzType="primary">Send Pending Notifications</button>
+      <button nz-button nzType="primary" (click)="showModal()">
+        Create New Notification Event
+      </button>
+    </nz-page-header-extra>
+  </nz-page-header>
+
+  <div class="inner-content">
+    <div style="padding: 0 15px; background: #fff">
+      <div nz-col>
+        <nz-tabset>
+          <nz-tab nzTitle="Active Notification Events">
+            <nz-table
+              #basicTable
+              nzBordered
+              [nzData]="listOfData"
+              class="custom-table"
+              [nzPageSize]="50"
+            >
+              <thead>
+                <tr>
+                  <th>Index</th>
+                  <th>Event Name</th>
+                  <th>Type</th>
+                  <th>Message</th>
+                  <th>isRepeat</th>
+                  <th>Frequency</th>
+                  <th>Delivery Date</th>
+                  <th>Scheduled</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of basicTable.data; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ data?.name }}</td>
+                  <td>{{ data?.type }}</td>
+                  <td>{{ data?.data?.message }}</td>
+                  <td>{{ data?.isRepeat }}</td>
+                  <td>{{ data?.frequency }}</td>
+                  <td>{{ data?.deliveryDate | date: "dd-MMM-yyyy h:mma" }}</td>
+                  <td>{{ data?.enabled }}</td>
+                  <td>
+                    <button
+                      nz-button
+                      [nzType]="'primary'"
+                      (click)="editNotifications(data)"
+                    >
+                      <i nz-icon nzType="edit" nzTheme="outline"></i>
+                    </button>
+                    <nz-divider nzType="vertical"></nz-divider>
+                    <button
+                      nz-button
+                      [nzType]="'danger'"
+                      (click)="deleteNotifications(data?._id)"
+                    >
+                      <i nz-icon nzType="delete" nzTheme="outline"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-tab>
+          <nz-tab nzTitle="Sent Notifications"> </nz-tab>
+        </nz-tabset>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nz-modal
+  [nzStyle]="{ top: '20px' }"
+  [(nzVisible)]="isVisible"
+  nzTitle="Notification Event"
+  nzMaskClosable="false"
+  nzWidth="600"
+  (nzOnCancel)="handleCancel()"
+  [nzFooter]="modalFooter"
+>
+  <form nz-form [formGroup]="validateForm" (ngSubmit)="submitForm()">
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="refname"
+        >Reference Name</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Reference Name!"
+      >
+        <input
+          nz-input
+          formControlName="name"
+          id="refname"
+          placeholder="Reference Name for Event"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item formGroupName="data">
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="displaymessage" nzRequired
+        >Display Message</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please input your Display Message!"
+      >
+        <input
+          nz-input
+          type="text"
+          id="displaymessage"
+          formControlName="message"
+          placeholder="Display Message"
+        />
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="notificationtype" nzRequired
+        >Notification Type</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="Please select your Notification Type!"
+      >
+        <nz-select
+          id="notificationtype"
+          formControlName="type"
+          nzPlaceHolder="Select a option and change input text above"
+        >
+          <nz-option nzValue="inapp" nzLabel="inapp"></nz-option>
+          <nz-option nzValue="event" nzLabel="event"></nz-option>
+          <nz-option nzValue="custom" nzLabel="custom"></nz-option>
+          <nz-option nzValue="retention" nzLabel="retention"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="deliverydate"
+        >Delivery Date</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Delivery Date!"
+      >
+        <nz-date-picker
+          [nzShowTime]="true"
+          nzFormat="dd-MMM-yyyy HH:mm:ss"
+          formControlName="deliveryDate"
+        ></nz-date-picker>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzRequired nzFor="upgradecost"
+        >Scheduled</nz-form-label
+      >
+      <nz-form-control
+        [nzSm]="14"
+        [nzXs]="24"
+        nzErrorTip="The input is not valid Scheduled!"
+      >
+        <label nz-checkbox formControlName="enabled"> </label>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="repeat"
+        >Repeat</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-radio-group
+          formControlName="isRepeat"
+          (ngModelChange)="onChangeRepeat($event)"
+        >
+          <label nz-radio nzValue="true" (click)="onChangeRepeat('true')"
+            >True</label
+          >
+          <label nz-radio nzValue="false" (click)="onChangeRepeat('false')"
+            >False</label
+          >
+        </nz-radio-group>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label [nzSm]="6" [nzXs]="24" nzFor="frequency"
+        >Frequency</nz-form-label
+      >
+      <nz-form-control [nzSm]="14" [nzXs]="24">
+        <nz-radio-group formControlName="frequency">
+          <label nz-radio nzValue="once" (click)="onChangeFrequency('once')"
+            >Once</label
+          >
+          <label nz-radio nzValue="daily" (click)="onChangeFrequency('daily')"
+            >Daily</label
+          >
+          <label nz-radio nzValue="weekly" (click)="onChangeFrequency('weekly')"
+            >Weekly</label
+          >
+          <label
+            nz-radio
+            nzValue="monthly"
+            (click)="onChangeFrequency('monthly')"
+            >Monthly</label
+          >
+        </nz-radio-group>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+  <ng-template #modalFooter>
+    <button nz-button nzType="default" (click)="handleCancel()">Cancel</button>
+    <button nz-button nzType="primary" (click)="submitForm()">Submit</button>
+  </ng-template>
+</nz-modal>
